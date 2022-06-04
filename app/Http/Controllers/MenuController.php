@@ -95,6 +95,52 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        throw new \Exception('implement in coding task 3');
+        try{
+
+            $menuitemsQuery = MenuItem::query();
+            $menuitems = $menuitemsQuery->get()->toArray();
+            //$menuitemsQuery->with('childiren');
+            //$menuitems = $menuitemsQuery->whereNull('parent_id')->get();
+
+
+            $events = array(
+                'events' => array(),
+                'parent_events' => array()
+            );
+
+            foreach ($menuitems as $menuitem){
+                $events['events'][$menuitem['id']] = $menuitem;
+                $events['parent_events'][$menuitem['parent_id']][] = $menuitem['id'];
+            }
+
+
+            $allmenuitems = $this->buildCategory(NULL, $events);
+            echo $allmenuitems;exit;
+
+
+        } catch (Exception $exception){
+            echo $exception->getMessage();exit;
+        }
+    }
+
+
+
+    function buildCategory($parent, $events) {
+        $html = "";
+        if (isset($events['parent_events'][$parent])) {
+            $html .= "<ul>\n";
+            foreach ($events['parent_events'][$parent] as $event_id) {
+                if (!isset($events['parent_events'][$event_id])) {
+                    $html .= "<li>\n " . $events['events'][$event_id]['name'] . "\n</li> \n";
+                }
+                if (isset($events['parent_events'][$event_id])) {
+                    $html .= "<li>\n " . $events['events'][$event_id]['name'] . " \n";
+                    $html .= $this->buildCategory($event_id, $events);
+                    $html .= "</li> \n";
+                }
+            }
+            $html .= "</ul> \n";
+        }
+        return $html;
     }
 }
