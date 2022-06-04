@@ -194,17 +194,19 @@ class EventsController extends BaseController
 
     public function getFutureEventsWithWorkshops() {
         try{
+
+            $now = \Carbon\Carbon::now();
             
             $eventsQuery = Event::query();
-            $eventsQuery->select('events.*');
+            $eventsQuery->select('events.*')->distinct();
             $eventsQuery->join('workshops','workshops.event_id','events.id');
-            $eventsQuery->where('workshops.start', '>', \Carbon\Carbon::now());
-            $eventsQuery->where('workshops.end', '>', \Carbon\Carbon::now());
-            $eventsQuery->groupBy('events.id');
+            $eventsQuery->where('workshops.start', '>', $now);
+            $eventsQuery->where('workshops.end', '>', $now);
+            //$eventsQuery->groupBy('events.id');
             $eventsQuery->with('workshops');
             $events = $eventsQuery->get();
             header('Content-Type: application/json');
-            echo json_encode($events);exit;    
+            echo json_encode($events, JSON_PRETTY_PRINT);exit;
 
             /*If we need to return then we can use below syntax*/
 
