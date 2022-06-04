@@ -101,7 +101,20 @@ class EventsController extends BaseController
      */
 
     public function getEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 1');
+         try{
+            $eventsQuery = Event::query();
+            $eventsQuery->with('workshops');
+            $events = $eventsQuery->get();
+            header('Content-Type: application/json');
+            echo json_encode($events, JSON_PRETTY_PRINT);exit;
+
+            /*If we need to return then we can use below syntax*/
+
+            /*return $events;*/
+            
+        } catch (Exception $exception){
+            echo $exception->getMessage();exit;
+        }
     }
 
 
@@ -180,6 +193,25 @@ class EventsController extends BaseController
      */
 
     public function getFutureEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 2');
+        try{
+            
+            $eventsQuery = Event::query();
+            $eventsQuery->select('events.*');
+            $eventsQuery->join('workshops','workshops.event_id','events.id');
+            $eventsQuery->where('workshops.start', '>', \Carbon\Carbon::now());
+            $eventsQuery->where('workshops.end', '>', \Carbon\Carbon::now());
+            $eventsQuery->groupBy('events.id');
+            $eventsQuery->with('workshops');
+            $events = $eventsQuery->get();
+            header('Content-Type: application/json');
+            echo json_encode($events);exit;    
+
+            /*If we need to return then we can use below syntax*/
+
+            /*return $events;*/
+
+        } catch (Exception $exception){
+            echo $exception->getMessage();exit;
+        }
     }
 }
